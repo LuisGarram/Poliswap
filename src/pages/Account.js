@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Component } from "react";
+import React, { useState, useEffect } from "react";
 import { UserAuth } from "../context/AuthContext";
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -134,7 +134,7 @@ const Account = () => {
             fullWidth
             name="cost per hour"
             id="cost per hour"
-            label="Name"
+            label="Cost per hours"
             value={cost}
             onChange={(e) => setCost(e.target.value)}
           />
@@ -160,7 +160,7 @@ const Account = () => {
           />
           <Button variant="contained" component="label">
             Image
-            <input accept="image/*" multiple type="file" />
+            <input hidden accept="image/*" multiple type="file" />
           </Button>
 
           <TextField
