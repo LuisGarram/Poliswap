@@ -102,8 +102,13 @@ const Navbar = () => {
   };
 
   let Acc = useNavigate();
+  
   const account = () => {
     let path = `account`;
+    Acc(path);
+  };
+  const PurchasedServices = () => {
+    let path = `PurchasedServices`;
     Acc(path);
   };
   return (
@@ -139,6 +144,9 @@ const Navbar = () => {
 
               <Button variant="outlined" onClick={account}>
                 Promote your services
+              </Button>
+              <Button variant="outlined" onClick={PurchasedServices}>
+                Account
               </Button>
               <Button>
                 {user?.displayName ? (
