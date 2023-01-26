@@ -3,3 +3,23 @@
   justify-content: center;
   align-items: center;
 }
+
+.h1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.image {
+  width: 50%;
+}
+html {
+  height: 100%;
+}
+body {
+  background-image: linear-gradient(
+    to bottom right,
+
+    #ff77cc,
+    rgb(255, 122, 89)
+  );
+}

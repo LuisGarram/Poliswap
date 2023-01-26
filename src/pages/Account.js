@@ -131,6 +131,8 @@ const Account = () => {
             onChange={(e) => setName(e.target.value)}
             autoFocus
           />
+          <br></br>
+          <br></br>
           <FormControl sx={{ minWidth: 120 }} size="small">
             <InputLabel id="demo-select-small">Category</InputLabel>
             <Select
@@ -181,7 +183,6 @@ const Account = () => {
             label="Email "
             name="email"
             value={email}
-            autoComplete="email"
             onChange={(e) => setEmail(e.target.value)}
           />
 
@@ -217,6 +218,7 @@ const Account = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={handleSubmit}
+            color="success"
           >
             Register
           </Button>
