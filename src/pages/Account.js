@@ -1,26 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { UserAuth } from "../context/AuthContext";
-import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import MenuItem from "@mui/material/MenuItem";
-import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Button, CardActionArea, CardActions } from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
+import OutlinedInput from "@mui/material/OutlinedInput";
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import "firebase/compat/auth";
-import { data } from "autoprefixer";
+import InputAdornment from "@mui/material/InputAdornment";
+
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  listAll,
+  list,
+} from "firebase/storage";
+import { storage } from "../firebase1";
+import { v4 } from "uuid";
 
 const Account = () => {
   const { logOut, user } = UserAuth();
@@ -35,6 +40,9 @@ const Account = () => {
   const [listData, setListData] = useState([]);
   const [fieldSubCategory, setFieldSubCategory] = React.useState(0);
 
+  const [imageUpload, setImageUpload] = useState(null);
+  const [imageUrls, setImageUrls] = useState([]);
+
   const handleSignOut = async () => {
     try {
       await logOut();
@@ -44,32 +52,42 @@ const Account = () => {
   };
 
   const handleSubmit = (e) => {
-    const data = {
-      name: name,
-      category: fieldSubCategory,
-      cost: cost,
-      details: details,
-      email: email,
-      setImage: image,
-      date: date,
-    };
-    console.log(data);
-    const db = firebase.firestore();
-    db.collection("register")
-      .add(data)
-      .then(function (docRef) {
-        console.log("Document written with ID: ", docRef.id);
-        setName("");
-        setFieldSubCategory("");
-        setCost("");
-        setDetails("");
-        setEmail("");
-        setImage("");
-        setDate("");
-      })
-      .catch(function (error) {
-        console.error("Error adding document: ", error);
+    if (imageUpload == null) {
+      setImageUpload([]);
+    } else {
+      const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+      uploadBytes(imageRef, imageUpload).then((snapshot) => {
+        console.log(snapshot.metadata.fullPath);
+        getDownloadURL(snapshot.ref).then((url) => {
+          const data = {
+            name: name,
+            category: fieldSubCategory,
+            cost: cost,
+            details: details,
+            email: email,
+            date: date,
+            image: url,
+          };
+          console.log(data);
+          const db = firebase.firestore();
+          db.collection("register")
+            .add(data)
+            .then(function (docRef) {
+              console.log("Document written with ID: ", docRef.id);
+              setName("");
+              setFieldSubCategory("");
+              setCost("");
+              setDetails("");
+              setEmail("");
+              setImage("");
+              setDate("");
+            })
+            .catch(function (error) {
+              console.error("Error adding document: ", error);
+            });
+        });
       });
+    }
     alert("Done ,You will shortly receive your risk profile.");
     e.preventDefault();
   };
@@ -113,6 +131,8 @@ const Account = () => {
             onChange={(e) => setName(e.target.value)}
             autoFocus
           />
+          <br></br>
+          <br></br>
           <FormControl sx={{ minWidth: 120 }} size="small">
             <InputLabel id="demo-select-small">Category</InputLabel>
             <Select
@@ -129,14 +149,22 @@ const Account = () => {
               ))}
             </Select>
           </FormControl>
-          <TextField
-            margin="normal"
-            fullWidth
-            name="cost per hour"
-            id="cost per hour"
-            label="Cost per hours"
+          <br></br>
+          <br></br>
+          <OutlinedInput
             value={cost}
             onChange={(e) => setCost(e.target.value)}
+            id="outlined-adornment-weight"
+            endAdornment={
+              <InputAdornment position="end">
+                {" "}
+                {process.env.REACT_APP_TLD}{" "}
+              </InputAdornment>
+            }
+            aria-describedby="outlined-weight-helper-text"
+            inputProps={{
+              "aria-label": "weight",
+            }}
           />
           <TextField
             margin="normal"
@@ -155,12 +183,19 @@ const Account = () => {
             label="Email "
             name="email"
             value={email}
-            autoComplete="email"
             onChange={(e) => setEmail(e.target.value)}
           />
+
           <Button variant="contained" component="label">
-            Image
-            <input hidden accept="image/*" multiple type="file" />
+            Upload
+            <input
+              onChange={(event) => {
+                setImageUpload(event.target.files[0]);
+              }}
+              hidden
+              multiple
+              type="file"
+            />
           </Button>
 
           <TextField
@@ -168,7 +203,7 @@ const Account = () => {
             fullWidth
             id="date"
             label="Delivery term"
-            type="date"
+            type="number"
             onChange={(e) => setDate(e.target.value)}
             value={date}
             //defaultValue=getdate
@@ -183,6 +218,7 @@ const Account = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={handleSubmit}
+            color="success"
           >
             Register
           </Button>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+
 import { UserAuth } from "../context/AuthContext";
 import AppBar from "@mui/material/AppBar";
 
@@ -11,10 +11,12 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
 import GlobalStyles from "@mui/material/GlobalStyles";
-import Container from "@mui/material/Container";
+
 import { ethers } from "ethers";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import Polis from "./Poli.png";
+
 const Navbar = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [defaultAccount, setDefaultAccount] = useState(null);
@@ -118,6 +120,7 @@ const Navbar = () => {
           styles={{ ul: { margin: 0, padding: 0, listStyle: "none" } }}
         />
         <CssBaseline />
+
         <AppBar
           position="static"
           color="default"
@@ -131,7 +134,7 @@ const Navbar = () => {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              PoliSwap
+              <img className="image" src={Polis} style={{ width: 150 }} />
             </Typography>
             <nav>
               <Button

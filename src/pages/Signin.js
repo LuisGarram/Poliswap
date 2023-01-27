@@ -63,33 +63,31 @@ const Signin = () => {
           A platform to exchanges services using Filecoin as payment
         </Typography>
 
-        <Card>
-          <CardHeader
-            titleTypographyProps={{ align: "center" }}
-            subheaderTypographyProps={{
-              align: "center",
-            }}
-          />
+        <CardHeader
+          titleTypographyProps={{ align: "center" }}
+          subheaderTypographyProps={{
+            align: "center",
+          }}
+        />
 
-          <CardContent>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "baseline",
-                mb: 2,
-              }}
-            >
-              <Typography variant="h6" color="text.secondary">
+        <CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "baseline",
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6" color="text.secondary">
+              <div>
                 <div>
-                  <div>
-                    <GoogleButton onClick={handleGoogleSignIn} />
-                  </div>
+                  <GoogleButton onClick={handleGoogleSignIn} />
                 </div>
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
+              </div>
+            </Typography>
+          </Box>
+        </CardContent>
       </Container>
       {/* End hero unit */}
     </React.Fragment>
