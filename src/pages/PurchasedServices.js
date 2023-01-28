@@ -19,6 +19,15 @@ import Container from "@mui/material/Container";
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import { Button, CardActionArea, CardActions } from '@mui/material';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  listAll,
+  list,
+} from "firebase/storage";
+import { storage } from "../firebase1";
+import { v4 } from "uuid";
 
 import defaultImage from "../assets/defaultService.png";
 import "./Home.css";
@@ -28,19 +37,21 @@ const BuyUser = () => {
   const [activateERC20, setActivateERC20] = useState(0);
   const [textBoxes, setTextBoxes] = useState([]);
 
+  const [name, setName] = useState("");
+  const [fieldSubCategory, setFieldSubCategory] = React.useState(0);
+  const [imageUpload, setImageUpload] = useState(null);
+
   //  Firebase loading data
   const [data, setData] = useState([]);
   let listData = [];
-
-
   const datax = async () => {
     let array = [];
     const dataFirestore = await firebase
       .firestore()
-      .collection("register")
+      .collection("reserves")
       .get();
     dataFirestore.forEach((doc) => {
-      if (doc.data().name == "dd")
+      //if (doc.data().name == "dd")
         array.push(doc.data());
 
     });
@@ -51,6 +62,58 @@ const BuyUser = () => {
     datax();
     console.log("List data3: ", listData);
   }, []);
+
+
+
+  // Columns:
+  const [colName, setColName] = useState("");
+  const [colDetails, setColDetails] = useState("");
+  const [colHours, setColHours] = useState("");
+  const [colBidderEmail, setColBidderEmail] = useState("");
+
+  // Firebase Register
+  const handleSubmit = (e) => {
+    if (imageUpload == null) {
+      setImageUpload([]);
+    }
+    else {
+      const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+      uploadBytes(imageRef, imageUpload).then((snapshot) => {
+        console.log(snapshot.metadata.fullPath);
+        getDownloadURL(snapshot.ref).then((url) => {
+          const data = {
+            name: colName,
+            details: colDetails,
+            hours: colHours,
+            bidderEmail: colBidderEmail
+          };
+          console.log(data);
+          const db = firebase.firestore();
+          db.collection("reserves")
+            .add(data)
+            .then(function (docRef) {
+              console.log("Document written with ID: ", docRef.id);
+              setColHours("");
+              setColBidderEmail("");
+              /*
+              setCost("");
+              setDetails("");
+              setEmail("");
+              setImage("");
+              setDate("");*/
+            })
+            .catch(function (error) {
+              console.error("Error adding document: ", error);
+            });
+        });
+      });
+    }
+    alert("Done ,You will shortly receive your risk profile.");
+    e.preventDefault();
+  };
+
+
+
 
   return (
     <div className="div-img">
@@ -96,14 +159,13 @@ const BuyUser = () => {
                           Details: {textBox.details}
                         </Typography>
                         <Typography gutterBottom variant="h5" component="h2">
-                          Cost per Hour: {textBox.cost}
+                          Cost per Hour: 
                         </Typography>
 
-                        <TextField id="filled-basic" label="Hours" type="number" />
-                        <br></br>
-                        <br></br>
-
-                        <TextField required id="outlined-required" label="Bidder's email" defaultValue="" />
+                        <TextField id="filled-basic" label="Hours" type="number"
+                          value={colHours}
+                          onChange={(e) => setColHours(e.target.value)} 
+                          />
                         <br></br>
                         <br></br>
                       </CardContent>
@@ -115,9 +177,8 @@ const BuyUser = () => {
                             style={{ display: "flex", justifyContent: "center" }}
                             color="success"
                             className="button"
-                            onClick={(e) => {
-                              alert("The cost per hour is: " + textBox.cost + " filecoins.");
-                            }}
+                            onClick={handleSubmit}
+                          //onClick={(e) => { alert("The cost per hour is: " + textBox.cost + " filecoins."); }}
                           >
                             Reserve
                           </Button>

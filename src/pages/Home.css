@@ -23,3 +23,24 @@ body {
     #ff77cc
   );
 }
+
+/* Agregado */
+.div-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.border{
+  height: 100%;
+}
+
+.div-services{
+  width: 100%;
+  height: 200px;
+}
+
+.img-services {
+  width: 100px;
+height: 100px;
+}
