@@ -26,7 +26,7 @@ import {
   listAll,
   list,
 } from "firebase/storage";
-import { storage } from "../firebase1";
+import { storage } from "../firebase";
 import { v4 } from "uuid";
 
 import defaultImage from "../assets/defaultService.png";
@@ -68,7 +68,6 @@ const BuyUser = () => {
   };
   useEffect(() => {
     datax();
-    console.log("List data3: ", listData);
   }, []);
 
   // Columns:
@@ -84,7 +83,7 @@ const BuyUser = () => {
     } else {
       const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
       uploadBytes(imageRef, imageUpload).then((snapshot) => {
-        console.log(snapshot.metadata.fullPath);
+
         getDownloadURL(snapshot.ref).then((url) => {
           const data = {
             name: colName,
@@ -92,12 +91,10 @@ const BuyUser = () => {
             hours: colHours,
             bidderEmail: colBidderEmail,
           };
-          console.log(data);
           const db = firebase.firestore();
           db.collection("reserves")
             .add(data)
             .then(function (docRef) {
-              console.log("Document written with ID: ", docRef.id);
               setColHours("");
               setColBidderEmail("");
               /*

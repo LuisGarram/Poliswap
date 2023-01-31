@@ -27,95 +27,67 @@ import {
   listAll,
   list,
 } from "firebase/storage";
-import { storage } from "../firebase1";
+import { storage } from "../firebase";
 import { v4 } from "uuid";
-
-// Pa saber si estoy conectado:
-// https://github.com/barocapital/DomainsFrontEnd/tree/main/src
+import { UserAuth } from '../context/AuthContext';
 let connectedMetamask = true;
 
 const HUser = () => {
-  const [price, setPrice] = useState("10");
-  const [activateERC20, setActivateERC20] = useState(0);
+  const { user } = UserAuth()
   const [textBoxes, setTextBoxes] = useState([]);
-  const [imageUpload, setImageUpload] = useState(null);
-
-
-  //  Firebase loading data
-  const [data, setData] = useState([]);
   let listData = [];
 
   const datax = async () => {
     let array = [];
+    let catalogServiceList=[];
+    const categoryCatalog = await firebase
+      .firestore()
+      .collection("category")
+      .get();
+      categoryCatalog.forEach((doc) => {
+
+        catalogServiceList=doc.data().category;
+      // get:  name, details, cost, email, date, category, image
+    });
     const dataFirestore = await firebase
       .firestore()
       .collection("register")
       .get();
     dataFirestore.forEach((doc) => {
-      array.push(doc.data());
+      array.push({ ...doc.data(),categoryName:catalogServiceList[doc.data().category].name , id: doc.id });
       // get:  name, details, cost, email, date, category, image
     });
+    
     setTextBoxes(array);
-    setData(listData);
+
   };
   useEffect(() => {
     datax();
-    console.log("List data: ", listData);
   }, []);
 
-  // Columns:
-  const [colName, setColName] = useState("");
-  const [colDetails, setColDetails] = useState("");
-  const [colBidderEmail, setColBidderEmail] = useState("");
 
 
 
   // Firebase Register
-  const handleSubmit = (e) => {
+  const handleSubmit = (e,index,textBox) => {
     e.preventDefault();
-    if (imageUpload == null) {
-      setImageUpload([]);
-    } else {
-      const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
-      uploadBytes(imageRef, imageUpload).then((snapshot) => {
-        console.log(snapshot.metadata.fullPath);
-        getDownloadURL(snapshot.ref).then((url) => {
-          const data = {
-            name: colName,
-            details: colDetails,
-            hours: 0,
-            UserHours: textBoxes.reduce(
-              (obj, value, index) => ({
-                ...obj,
-                [`textboxes ${index}`]: value,
-              }),
-              {}
-            ),
-            bidderEmail: textBoxes[e.target.id].email,
-            image: textBoxes[e.target.id].image,
-          };
-          console.log(data);
-          const db = firebase.firestore();
-          db.collection("reserves")
-            .add(data)
-            .then(function (docRef) {
-              console.log("Document written with ID: ", docRef.id);
-              /*
-              setColHours("");
-              setColBidderEmail("");
-              setCost("");
-              setDetails("");
-              setEmail("");
-              setImage("");
-              setDate("");*/
-            })
-            .catch(function (error) {
-              console.error("Error adding document: ", error);
-            });
+      const data = {
+        id: textBoxes[e.target.id].id,
+        hoursReserved: parseInt(textBoxes[e.target.id].filecoinHours),
+        total: parseInt(textBoxes[e.target.id].total),
+        client:user.email
+      };
+      const db = firebase.firestore();
+      db.collection("reserves")
+        .add(data)
+        .then(function (docRef) {
+        })
+        .catch(function (error) {
+          console.error("Error adding document: ", error);
         });
-      });
-    }
-    alert("Done :)");
+      alert("Done :)");
+    
+
   };
   const handleChange = (e, index) => {
     const values = [...textBoxes];
@@ -124,11 +96,11 @@ const HUser = () => {
       return false;
     if (e.target.name === "filecoinHours") {
       values[index].total=  e.target.value * values[index].cost
+      values[index].filecoinHours= e.target.value;
       setTextBoxes(values)
     } 
-    console.log(values);
-
   };
+  
   return (
     <div className="div-img">
       <Box
@@ -158,7 +130,7 @@ const HUser = () => {
                       <br></br>
                       <center>
                         <Typography gutterBottom variant="h5" component="h2">
-                          {textBox.category}
+                          {textBox.categoryName}
                         </Typography>
                         <div className="div-services">
                           <img
@@ -185,7 +157,7 @@ const HUser = () => {
                               name="filecoinHours"
                               type="number"
                               value={textBox.filecoinHours}
-                              onChange={(e) => handleChange(e, index)}
+                              onChange={(e) => handleChange(e, index,textBox)}
                             />
                             <Typography
                               gutterBottom
@@ -240,8 +212,7 @@ const HUser = () => {
                                 }}
                                 color="success"
                                 className="button"
-                                onClick={handleSubmit}
-                                //onClick={(e) => { alert("The cost per hour is: " + textBox.cost + " filecoins.");  }}
+                                onClick= {(e) => handleSubmit(e, index)}
                               >
                                 Reserve
                               </Button>

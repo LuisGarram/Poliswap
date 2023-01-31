@@ -29,7 +29,6 @@ const Navbar = () => {
     try {
       await logOut();
     } catch (error) {
-      console.log(error);
     }
   };
 
@@ -45,7 +44,6 @@ const Navbar = () => {
   });
   const connectWalletHandler = () => {
     if (window.ethereum && window.ethereum.isMetaMask) {
-      console.log("MetaMask Here!");
 
       window.ethereum
         .request({ method: "eth_requestAccounts" })
@@ -58,7 +56,6 @@ const Navbar = () => {
           setErrorMessage(error.message);
         });
     } else {
-      console.log("Need to install MetaMask");
       setErrorMessage("Please install MetaMask browser extension to interact");
     }
   };

@@ -24,7 +24,7 @@ import {
   listAll,
   list,
 } from "firebase/storage";
-import { storage } from "../firebase1";
+import { storage } from "../firebase";
 import { v4 } from "uuid";
 
 const Account = () => {
@@ -47,7 +47,6 @@ const Account = () => {
     try {
       await logOut();
     } catch (error) {
-      console.log(error);
     }
   };
 
@@ -58,7 +57,6 @@ const Account = () => {
     } else {
       const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
       uploadBytes(imageRef, imageUpload).then((snapshot) => {
-        console.log(snapshot.metadata.fullPath);
         getDownloadURL(snapshot.ref).then((url) => {
           const data = {
             name: name,
@@ -69,12 +67,10 @@ const Account = () => {
             deliveryTerm: parseInt(date),
             image: url,
           };
-          console.log(data);
           const db = firebase.firestore();
           db.collection("register")
             .add(data)
             .then(function (docRef) {
-              console.log("Document written with ID: ", docRef.id);
               setName("");
               setFieldSubCategory("");
               setCost("");
