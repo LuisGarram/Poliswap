@@ -52,6 +52,7 @@ const Account = () => {
   };
 
   const handleSubmit = (e) => {
+    e.preventDefault();
     if (imageUpload == null) {
       setImageUpload([]);
     } else {
@@ -62,10 +63,10 @@ const Account = () => {
           const data = {
             name: name,
             category: fieldSubCategory,
-            cost: cost,
+            cost: parseInt(cost),
             details: details,
             email: email,
-            date: date,
+            deliveryTerm: parseInt(date),
             image: url,
           };
           console.log(data);
@@ -81,6 +82,7 @@ const Account = () => {
               setEmail("");
               setImage("");
               setDate("");
+              setImageUpload([]);
             })
             .catch(function (error) {
               console.error("Error adding document: ", error);
@@ -88,8 +90,7 @@ const Account = () => {
         });
       });
     }
-    alert("Done ,You will shortly receive your risk profile.");
-    e.preventDefault();
+    alert("Done :)");
   };
 
   const datax = async () => {
@@ -106,6 +107,19 @@ const Account = () => {
   }, []);
   const handleChangeOptionSubCategory = (event) => {
     setFieldSubCategory(event.target.value);
+  };
+  const handleChangeDate = (e) => {
+    const regex = /^[0-9\b]+$/;
+    if (e.target.value === "" || regex.test(e.target.value)) {
+      setDate(e.target.value);
+    }
+  };
+
+  const handleChangeCost = (e) => {
+    const regex = /^[0-9\b]+$/;
+    if (e.target.value === "" || regex.test(e.target.value)) {
+      setCost(e.target.value)
+    }
   };
   return (
     <Container component="main" maxWidth="xs">
@@ -128,7 +142,8 @@ const Account = () => {
             id="outlined-name"
             label="Name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)
+            }
             autoFocus
           />
           <br></br>
@@ -153,7 +168,9 @@ const Account = () => {
           <br></br>
           <OutlinedInput
             value={cost}
-            onChange={(e) => setCost(e.target.value)}
+            onChange={(e) => 
+              handleChangeCost(e)
+            }
             id="outlined-adornment-weight"
             endAdornment={
               <InputAdornment position="end">
@@ -185,8 +202,27 @@ const Account = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-
-          <Button variant="contained" component="label">
+<br></br>
+<br></br>
+<OutlinedInput
+            value={date}
+            onChange={(e) => 
+              handleChangeDate(e)
+            }
+            id="outlined-adornment-date"
+            endAdornment={
+              <InputAdornment position="end">
+                days
+              </InputAdornment>
+            }
+            aria-describedby="outlined-weight-helper-text-date"
+            inputProps={{
+              "aria-label": "date",
+            }}
+          />
+          <br></br>
+          <br></br>
+          <Button  sx={{ mt: 1 }} variant="contained" component="label">
             Upload
             <input
               onChange={(event) => {
@@ -198,26 +234,14 @@ const Account = () => {
             />
           </Button>
 
-          <TextField
-            margin="normal"
-            fullWidth
-            id="date"
-            label="Delivery term"
-            type="number"
-            onChange={(e) => setDate(e.target.value)}
-            value={date}
-            //defaultValue=getdate
-            InputLabelProps={{
-              shrink: true,
-            }}
-            autoComplete="current-password"
-          />
 
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            onClick={handleSubmit}
+             onClick={(e) => 
+              handleSubmit(e)
+            }
             color="success"
           >
             Register
