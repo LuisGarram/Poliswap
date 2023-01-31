@@ -1,26 +1,31 @@
-import React, { useState, useEffect, Component } from "react";
+import React, { useState, useEffect } from "react";
 import { UserAuth } from "../context/AuthContext";
-import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import MenuItem from "@mui/material/MenuItem";
-import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Button, CardActionArea, CardActions } from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
+import OutlinedInput from "@mui/material/OutlinedInput";
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import "firebase/compat/auth";
-import { data } from "autoprefixer";
+import InputAdornment from "@mui/material/InputAdornment";
+
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  listAll,
+  list,
+} from "firebase/storage";
+import { storage } from "../firebase";
+import { v4 } from "uuid";
 
 const Account = () => {
   const { logOut, user } = UserAuth();
@@ -35,43 +40,53 @@ const Account = () => {
   const [listData, setListData] = useState([]);
   const [fieldSubCategory, setFieldSubCategory] = React.useState(0);
 
+  const [imageUpload, setImageUpload] = useState(null);
+  const [imageUrls, setImageUrls] = useState([]);
+
   const handleSignOut = async () => {
     try {
       await logOut();
     } catch (error) {
-      console.log(error);
     }
   };
 
   const handleSubmit = (e) => {
-    const data = {
-      name: name,
-      category: fieldSubCategory,
-      cost: cost,
-      details: details,
-      email: email,
-      setImage: image,
-      date: date,
-    };
-    console.log(data);
-    const db = firebase.firestore();
-    db.collection("register")
-      .add(data)
-      .then(function (docRef) {
-        console.log("Document written with ID: ", docRef.id);
-        setName("");
-        setFieldSubCategory("");
-        setCost("");
-        setDetails("");
-        setEmail("");
-        setImage("");
-        setDate("");
-      })
-      .catch(function (error) {
-        console.error("Error adding document: ", error);
-      });
-    alert("Done ,You will shortly receive your risk profile.");
     e.preventDefault();
+    if (imageUpload == null) {
+      setImageUpload([]);
+    } else {
+      const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+      uploadBytes(imageRef, imageUpload).then((snapshot) => {
+        getDownloadURL(snapshot.ref).then((url) => {
+          const data = {
+            name: name,
+            category: fieldSubCategory,
+            cost: parseInt(cost),
+            details: details,
+            email: email,
+            deliveryTerm: parseInt(date),
+            image: url,
+          };
+          const db = firebase.firestore();
+          db.collection("register")
+            .add(data)
+            .then(function (docRef) {
+              setName("");
+              setFieldSubCategory("");
+              setCost("");
+              setDetails("");
+              setEmail("");
+              setImage("");
+              setDate("");
+              setImageUpload([]);
+            })
+            .catch(function (error) {
+              console.error("Error adding document: ", error);
+            });
+        });
+      });
+    }
+    alert("Done :)");
   };
 
   const datax = async () => {
@@ -88,6 +103,19 @@ const Account = () => {
   }, []);
   const handleChangeOptionSubCategory = (event) => {
     setFieldSubCategory(event.target.value);
+  };
+  const handleChangeDate = (e) => {
+    const regex = /^[0-9\b]+$/;
+    if (e.target.value === "" || regex.test(e.target.value)) {
+      setDate(e.target.value);
+    }
+  };
+
+  const handleChangeCost = (e) => {
+    const regex = /^[0-9\b]+$/;
+    if (e.target.value === "" || regex.test(e.target.value)) {
+      setCost(e.target.value)
+    }
   };
   return (
     <Container component="main" maxWidth="xs">
@@ -110,9 +138,12 @@ const Account = () => {
             id="outlined-name"
             label="Name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)
+            }
             autoFocus
           />
+          <br></br>
+          <br></br>
           <FormControl sx={{ minWidth: 120 }} size="small">
             <InputLabel id="demo-select-small">Category</InputLabel>
             <Select
@@ -129,14 +160,24 @@ const Account = () => {
               ))}
             </Select>
           </FormControl>
-          <TextField
-            margin="normal"
-            fullWidth
-            name="cost per hour"
-            id="cost per hour"
-            label="Name"
+          <br></br>
+          <br></br>
+          <OutlinedInput
             value={cost}
-            onChange={(e) => setCost(e.target.value)}
+            onChange={(e) => 
+              handleChangeCost(e)
+            }
+            id="outlined-adornment-weight"
+            endAdornment={
+              <InputAdornment position="end">
+                {" "}
+                {process.env.REACT_APP_TLD}{" "}
+              </InputAdornment>
+            }
+            aria-describedby="outlined-weight-helper-text"
+            inputProps={{
+              "aria-label": "weight",
+            }}
           />
           <TextField
             margin="normal"
@@ -155,34 +196,49 @@ const Account = () => {
             label="Email "
             name="email"
             value={email}
-            autoComplete="email"
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button variant="contained" component="label">
-            Image
-            <input accept="image/*" multiple type="file" />
+<br></br>
+<br></br>
+<OutlinedInput
+            value={date}
+            onChange={(e) => 
+              handleChangeDate(e)
+            }
+            id="outlined-adornment-date"
+            endAdornment={
+              <InputAdornment position="end">
+                days
+              </InputAdornment>
+            }
+            aria-describedby="outlined-weight-helper-text-date"
+            inputProps={{
+              "aria-label": "date",
+            }}
+          />
+          <br></br>
+          <br></br>
+          <Button  sx={{ mt: 1 }} variant="contained" component="label">
+            Upload
+            <input
+              onChange={(event) => {
+                setImageUpload(event.target.files[0]);
+              }}
+              hidden
+              multiple
+              type="file"
+            />
           </Button>
 
-          <TextField
-            margin="normal"
-            fullWidth
-            id="date"
-            label="Delivery term"
-            type="date"
-            onChange={(e) => setDate(e.target.value)}
-            value={date}
-            //defaultValue=getdate
-            InputLabelProps={{
-              shrink: true,
-            }}
-            autoComplete="current-password"
-          />
 
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            onClick={handleSubmit}
+             onClick={(e) => 
+              handleSubmit(e)
+            }
+            color="success"
           >
             Register
           </Button>
