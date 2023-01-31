@@ -33,7 +33,6 @@ import { v4 } from "uuid";
 // Pa saber si estoy conectado:
 // https://github.com/barocapital/DomainsFrontEnd/tree/main/src
 let connectedMetamask = true;
-let plazo = 1;
 
 const HUser = () => {
   const [price, setPrice] = useState("10");
@@ -41,13 +40,6 @@ const HUser = () => {
   const [textBoxes, setTextBoxes] = useState([]);
   const [imageUpload, setImageUpload] = useState(null);
 
-  const handleChange = (e, index) => {
-    const values = [...textBoxes];
-    if (e.target.name === "num") {
-      values[index].num = e.target.value;
-    }
-    setTextBoxes(values);
-  };
 
   //  Firebase loading data
   const [data, setData] = useState([]);
@@ -62,7 +54,6 @@ const HUser = () => {
     dataFirestore.forEach((doc) => {
       array.push(doc.data());
       // get:  name, details, cost, email, date, category, image
-      addInput();
     });
     setTextBoxes(array);
     setData(listData);
@@ -75,22 +66,13 @@ const HUser = () => {
   // Columns:
   const [colName, setColName] = useState("");
   const [colDetails, setColDetails] = useState("");
-  const [colHours, setColHours] = useState([]);
   const [colBidderEmail, setColBidderEmail] = useState("");
 
-  // Una función para agregar un nuevo input al array
-  const addInput = () => {
-    setColHours([...colHours, { value: "" }]);
-  };
-  // Una función para actualizar el valor de un input específico
-  const updateInput = (index, value) => {
-    const newInputs = [...colHours];
-    newInputs[index].value = value;
-    setColHours(newInputs);
-  };
+
 
   // Firebase Register
   const handleSubmit = (e) => {
+    e.preventDefault();
     if (imageUpload == null) {
       setImageUpload([]);
     } else {
@@ -101,7 +83,7 @@ const HUser = () => {
           const data = {
             name: colName,
             details: colDetails,
-            hours: colHours,
+            hours: 0,
             UserHours: textBoxes.reduce(
               (obj, value, index) => ({
                 ...obj,
@@ -133,11 +115,20 @@ const HUser = () => {
         });
       });
     }
-    alert("Done ,You will shortly receive your risk profile.");
-    console.log("que trae e?:  ", e);
-    e.preventDefault();
+    alert("Done :)");
   };
+  const handleChange = (e, index) => {
+    const values = [...textBoxes];
+    let strongRegex = new RegExp("^[0-9.]*$");
+    if (e.target.name === "filecoinHours" && strongRegex.test(e.target.value) == false)
+      return false;
+    if (e.target.name === "filecoinHours") {
+      values[index].total=  e.target.value * values[index].cost
+      setTextBoxes(values)
+    } 
+    console.log(values);
 
+  };
   return (
     <div className="div-img">
       <Box
@@ -189,10 +180,11 @@ const HUser = () => {
                         <React.Fragment>
                           <CardContent sx={{ flexGrow: 1 }}>
                             <TextField
-                              id="filled-basic"
+                              id="filecoinHours"
                               label="Hours"
+                              name="filecoinHours"
                               type="number"
-                              value={textBox.num}
+                              value={textBox.filecoinHours}
                               onChange={(e) => handleChange(e, index)}
                             />
                             <Typography
@@ -200,14 +192,17 @@ const HUser = () => {
                               variant="h5"
                               component="h2"
                             >
-                              delivery term:{" "}
-                              {Math.round(colHours / 5) <= 0 && colHours >= 1
-                                ? 1
-                                : Math.round(colHours / 5)}{" "}
+                              Delivery term: {textBox.deliveryTerm } {" "}
                               days.
                             </Typography>
+                            <Typography
+                              gutterBottom
+                              variant="h5"
+                              component="h2"
+                            >
+                              Total: {textBox.total?textBox.total:0} {" "} Filecoin
+                            </Typography>
                           </CardContent>
-
                           <CardContent sx={{ flexGrow: 1 }}>
                             <Typography
                               gutterBottom
