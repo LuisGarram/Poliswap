@@ -83,7 +83,6 @@ const BuyUser = () => {
     } else {
       const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
       uploadBytes(imageRef, imageUpload).then((snapshot) => {
-
         getDownloadURL(snapshot.ref).then((url) => {
           const data = {
             name: colName,

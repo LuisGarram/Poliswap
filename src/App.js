@@ -9,7 +9,9 @@ import Home from "./pages/Home";
 import Signin from "./pages/Signin";
 import firebase from "firebase/compat/app";
 import HUser from "./pages/HUser";
-import PurchasedServices from "./pages/PurchasedServices";
+
+import Freelancer from "./pages/Freelancer";
+import BuyUser from "./pages/BuyUser";
 
 firebase.initializeApp({
   apiKey: process.env.REACT_APP_API_KEY,
@@ -38,7 +40,8 @@ function App() {
             }
           />
           <Route path="/Huser" element={<HUser />} />
-          <Route path="/PurchasedServices" element={<PurchasedServices />} />
+          <Route path="/PurchasedServices" element={<BuyUser />} />
+          <Route path="/Freelancer" element={<Freelancer />} />
         </Routes>
       </AuthContextProvider>
     </div>
