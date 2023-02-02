@@ -17,6 +17,7 @@ import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import Container from "@mui/material/Container";
+import { profile } from "../firebase";
 
 const Signin = () => {
   const { googleSignIn, user } = UserAuth();
@@ -26,13 +27,13 @@ const Signin = () => {
     try {
       await googleSignIn();
     } catch (error) {
-      console.log(error);
+      console.log("Error:  ", error);
     }
   };
 
   useEffect(() => {
     if (user != null) {
-      navigate("/account");
+      navigate("/PromoteYourServices");
     }
   }, [user]);
 

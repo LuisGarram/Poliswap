@@ -21,13 +21,11 @@ import {
   ref,
   uploadBytes,
   getDownloadURL,
-  listAll,
-  list,
 } from "firebase/storage";
 import { storage } from "../firebase";
 import { v4 } from "uuid";
 
-const Account = () => {
+const PromoteYourServices = () => {
   const { logOut, user } = UserAuth();
 
   const [name, setName] = useState("");
@@ -41,14 +39,6 @@ const Account = () => {
   const [fieldSubCategory, setFieldSubCategory] = React.useState(0);
 
   const [imageUpload, setImageUpload] = useState(null);
-  const [imageUrls, setImageUrls] = useState([]);
-
-  const handleSignOut = async () => {
-    try {
-      await logOut();
-    } catch (error) {
-    }
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -63,7 +53,7 @@ const Account = () => {
             category: fieldSubCategory,
             cost: parseInt(cost),
             details: details,
-            email: email,
+            email: user.email,
             deliveryTerm: parseInt(date),
             image: url,
           };
@@ -95,6 +85,7 @@ const Account = () => {
       .collection("category")
       .get();
     dataFirestore.forEach((doc) => {
+
       setListData(doc.data().category);
     });
   };
@@ -193,9 +184,8 @@ const Account = () => {
             margin="normal"
             fullWidth
             id="email"
-            label="Email "
             name="email"
-            value={email}
+            value={user.email}
             onChange={(e) => setEmail(e.target.value)}
           />
 <br></br>
@@ -252,4 +242,4 @@ const Account = () => {
   );
 };
 
-export default Account;
+export default PromoteYourServices;

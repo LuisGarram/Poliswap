@@ -30,16 +30,28 @@ import {
 import { storage } from "../firebase";
 import { v4 } from "uuid";
 import { UserAuth } from "../context/AuthContext";
+import { CollectionsBookmarkRounded } from "@mui/icons-material";
 let connectedMetamask = true;
 
 const HUser = () => {
   const { user } = UserAuth();
   const [textBoxes, setTextBoxes] = useState([]);
+  const [idStatusQuery, setIdStatusQuery] = useState("");
   let listData = [];
 
   const datax = async () => {
     let array = [];
     let catalogServiceList = [];
+
+    const statusCatalog = await firebase
+      .firestore()
+      .collection("status")
+      .get();
+    statusCatalog.forEach((doc) => {
+      if (doc.data().name == "In Progress")
+        setIdStatusQuery(doc.id);
+    });
+
     const categoryCatalog = await firebase
       .firestore()
       .collection("category")
@@ -48,6 +60,9 @@ const HUser = () => {
       catalogServiceList = doc.data().category;
       // get:  name, details, cost, email, date, category, image
     });
+
+
+
     const dataFirestore = await firebase
       .firestore()
       .collection("register")
@@ -67,24 +82,40 @@ const HUser = () => {
     datax();
   }, []);
 
+  function getDate() {
+    return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
   // Firebase Register
   const handleSubmit = (e, index, textBox) => {
-    e.preventDefault();
-    const data = {
-      id: textBoxes[e.target.id].id,
-      hoursReserved: parseInt(textBoxes[e.target.id].filecoinHours),
-      total: parseInt(textBoxes[e.target.id].total),
-      client: user.email,
-    };
-    const db = firebase.firestore();
-    db.collection("reserves")
-      .add(data)
-      .then(function (docRef) {})
-      .catch(function (error) {
-        console.error("Error adding document: ", error);
-      });
-    alert("Done :)");
+    if (textBoxes[e.target.id].filecoinHours != null && textBoxes[e.target.id].filecoinHours >= 1 && textBoxes[e.target.id].filecoinHours <= 10000) {
+      e.preventDefault();
+
+      const data = {
+        HiringDate: getDate(),
+        id: textBoxes[e.target.id].id,
+        hoursReserved: parseInt(textBoxes[e.target.id].filecoinHours),
+        total: parseInt(textBoxes[e.target.id].total),
+        client: user.email,
+        idStatus: idStatusQuery
+      };
+      const db = firebase.firestore();
+      db.collection("reserves")
+        .add(data)
+        .then(function (docRef) {
+          alert("Done :)");
+        })
+        .catch(function (error) {
+          console.error("Error adding document: ", error);
+        });
+    }
+    else {
+      if (textBoxes[e.target.id].filecoinHours > 10000)
+        alert("Hours limit exceeded");
+      else
+        alert("Select hours to reserve. Minimum must be 1.");
+    }
   };
+
   const handleChange = (e, index) => {
     const values = [...textBoxes];
     let strongRegex = new RegExp("^[0-9.]*$");

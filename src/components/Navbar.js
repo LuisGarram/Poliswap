@@ -11,6 +11,8 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
 import GlobalStyles from "@mui/material/GlobalStyles";
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 import { ethers } from "ethers";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -22,9 +24,10 @@ const Navbar = () => {
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [userBalance, setUserBalance] = useState(null);
   const [connButtonText, setConnButtonText] = useState("Connect Wallet");
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
   const { user, logOut } = UserAuth();
-
   const handleSignOut = async () => {
     try {
       await logOut();
@@ -101,14 +104,29 @@ const Navbar = () => {
   };
 
   let Acc = useNavigate();
-  
-  const account = () => {
-    let path = `account`;
+
+  const PromoteYourServices = () => {
+    let path = `PromoteYourServices`;
     Acc(path);
   };
-  const PurchasedServices = () => {
-    let path = `PurchasedServices`;
+
+  const myReservations = () => {
+    let path = `myReservations`;
     Acc(path);
+    AccountClose();
+  };
+  const clientReservations = () => {
+    let path = `clientReservations`;
+    Acc(path);
+    AccountClose();
+  };
+  const AccountClose = () => {
+    setAnchorEl(null);
+  };
+
+  const AccountClick = (event) => {
+    setAnchorEl(event.currentTarget);
+
   };
   return (
     <React.Fragment>
@@ -142,12 +160,31 @@ const Navbar = () => {
                 Buy
               </Button>
 
-              <Button variant="outlined" onClick={account}>
+              <Button variant="outlined" onClick={PromoteYourServices}>
                 Promote your services
               </Button>
-              <Button variant="outlined" onClick={PurchasedServices}>
-                Account
-              </Button>
+              <Button
+                id="basic-button"
+                variant="outlined"
+                aria-controls={open ? 'basic-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                onClick={AccountClick}
+              >Account</Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={AccountClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+              >
+                <MenuItem onClick={myReservations}>My reservations</MenuItem>
+                <MenuItem onClick={clientReservations}>Clients</MenuItem>
+              </Menu>
+
+
               <Button>
                 {user?.displayName ? (
                   <Button variant="outlined" onClick={handleSignOut}>

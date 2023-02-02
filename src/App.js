@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 
 import Protected from "./components/Protected";
 import { AuthContextProvider } from "./context/AuthContext";
-import Account from "./pages/Account";
+import PromoteYourServices from "./pages/PromoteYourServices";
 import Home from "./pages/Home";
 import Signin from "./pages/Signin";
 import firebase from "firebase/compat/app";
@@ -12,6 +12,7 @@ import HUser from "./pages/HUser";
 
 import Freelancer from "./pages/Freelancer";
 import BuyUser from "./pages/BuyUser";
+import UserReserves from "./pages/UserReserves";
 
 firebase.initializeApp({
   apiKey: process.env.REACT_APP_API_KEY,
@@ -32,16 +33,17 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<Signin />} />
           <Route
-            path="/Account"
+            path="/PromoteYourServices"
             element={
               <Protected>
-                <Account />
+                <PromoteYourServices />
               </Protected>
             }
           />
           <Route path="/Huser" element={<HUser />} />
           <Route path="/PurchasedServices" element={<BuyUser />} />
-          <Route path="/Freelancer" element={<Freelancer />} />
+          <Route path="/clientReservations" element={<Freelancer />} />
+          <Route path="/myReservations" element={<UserReserves />} />
         </Routes>
       </AuthContextProvider>
     </div>
