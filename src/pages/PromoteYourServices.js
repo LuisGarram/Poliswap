@@ -17,11 +17,7 @@ import "firebase/compat/firestore";
 import "firebase/compat/auth";
 import InputAdornment from "@mui/material/InputAdornment";
 
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import { v4 } from "uuid";
 
@@ -85,7 +81,6 @@ const PromoteYourServices = () => {
       .collection("category")
       .get();
     dataFirestore.forEach((doc) => {
-
       setListData(doc.data().category);
     });
   };
@@ -105,7 +100,7 @@ const PromoteYourServices = () => {
   const handleChangeCost = (e) => {
     const regex = /^[0-9\b]+$/;
     if (e.target.value === "" || regex.test(e.target.value)) {
-      setCost(e.target.value)
+      setCost(e.target.value);
     }
   };
   return (
@@ -129,8 +124,7 @@ const PromoteYourServices = () => {
             id="outlined-name"
             label="Name"
             value={name}
-            onChange={(e) => setName(e.target.value)
-            }
+            onChange={(e) => setName(e.target.value)}
             autoFocus
           />
           <br></br>
@@ -155,9 +149,7 @@ const PromoteYourServices = () => {
           <br></br>
           <OutlinedInput
             value={cost}
-            onChange={(e) => 
-              handleChangeCost(e)
-            }
+            onChange={(e) => handleChangeCost(e)}
             id="outlined-adornment-weight"
             endAdornment={
               <InputAdornment position="end">
@@ -188,19 +180,13 @@ const PromoteYourServices = () => {
             value={user.email}
             onChange={(e) => setEmail(e.target.value)}
           />
-<br></br>
-<br></br>
-<OutlinedInput
+          <br></br>
+          <br></br>
+          <OutlinedInput
             value={date}
-            onChange={(e) => 
-              handleChangeDate(e)
-            }
+            onChange={(e) => handleChangeDate(e)}
             id="outlined-adornment-date"
-            endAdornment={
-              <InputAdornment position="end">
-                days
-              </InputAdornment>
-            }
+            endAdornment={<InputAdornment position="end">days</InputAdornment>}
             aria-describedby="outlined-weight-helper-text-date"
             inputProps={{
               "aria-label": "date",
@@ -208,7 +194,7 @@ const PromoteYourServices = () => {
           />
           <br></br>
           <br></br>
-          <Button  sx={{ mt: 1 }} variant="contained" component="label">
+          <Button sx={{ mt: 1 }} variant="contained" component="label">
             Upload
             <input
               onChange={(event) => {
@@ -220,14 +206,11 @@ const PromoteYourServices = () => {
             />
           </Button>
 
-
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-             onClick={(e) => 
-              handleSubmit(e)
-            }
+            onClick={(e) => handleSubmit(e)}
             color="success"
           >
             Register

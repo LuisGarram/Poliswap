@@ -11,8 +11,8 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
 import GlobalStyles from "@mui/material/GlobalStyles";
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 import { ethers } from "ethers";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -20,10 +20,6 @@ import { useNavigate } from "react-router-dom";
 import Polis from "./Poli.png";
 
 const Navbar = () => {
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [defaultAccount, setDefaultAccount] = useState(null);
-  const [userBalance, setUserBalance] = useState(null);
-  const [connButtonText, setConnButtonText] = useState("Connect Wallet");
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -31,8 +27,7 @@ const Navbar = () => {
   const handleSignOut = async () => {
     try {
       await logOut();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const theme = createTheme({
@@ -45,50 +40,6 @@ const Navbar = () => {
       },
     },
   });
-  const connectWalletHandler = () => {
-    if (window.ethereum && window.ethereum.isMetaMask) {
-
-      window.ethereum
-        .request({ method: "eth_requestAccounts" })
-        .then((result) => {
-          accountChangedHandler(result[0]);
-          setConnButtonText("Wallet Connected");
-          getAccountBalance(result[0]);
-        })
-        .catch((error) => {
-          setErrorMessage(error.message);
-        });
-    } else {
-      setErrorMessage("Please install MetaMask browser extension to interact");
-    }
-  };
-
-  // update account, will cause component re-render
-  const accountChangedHandler = (newAccount) => {
-    setDefaultAccount(newAccount);
-    getAccountBalance(newAccount.toString());
-  };
-
-  const getAccountBalance = (account) => {
-    window.ethereum
-      .request({ method: "eth_getBalance", params: [account, "latest"] })
-      .then((balance) => {
-        setUserBalance(ethers.utils.formatEther(balance));
-      })
-      .catch((error) => {
-        setErrorMessage(error.message);
-      });
-  };
-
-  const chainChangedHandler = () => {
-    // reload the page to avoid any errors with chain change mid use of application
-    window.location.reload();
-  };
-
-  // listen for account changes
-  window.ethereum.on("accountsChanged", accountChangedHandler);
-
-  window.ethereum.on("chainChanged", chainChangedHandler);
 
   let navigate = useNavigate();
 
@@ -126,7 +77,6 @@ const Navbar = () => {
 
   const AccountClick = (event) => {
     setAnchorEl(event.currentTarget);
-
   };
   return (
     <React.Fragment>
@@ -166,24 +116,25 @@ const Navbar = () => {
               <Button
                 id="basic-button"
                 variant="outlined"
-                aria-controls={open ? 'basic-menu' : undefined}
+                aria-controls={open ? "basic-menu" : undefined}
                 aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
+                aria-expanded={open ? "true" : undefined}
                 onClick={AccountClick}
-              >Account</Button>
+              >
+                Account
+              </Button>
               <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
                 open={open}
                 onClose={AccountClose}
                 MenuListProps={{
-                  'aria-labelledby': 'basic-button',
+                  "aria-labelledby": "basic-button",
                 }}
               >
                 <MenuItem onClick={myReservations}>My reservations</MenuItem>
                 <MenuItem onClick={clientReservations}>Clients</MenuItem>
               </Menu>
-
 
               <Button>
                 {user?.displayName ? (
@@ -199,13 +150,7 @@ const Navbar = () => {
                 )}
               </Button>
             </nav>
-            <Button
-              variant="outlined"
-              sx={{ my: 1, mx: 1.5 }}
-              onClick={connectWalletHandler}
-            >
-              {connButtonText}
-            </Button>
+            <Button variant="outlined" sx={{ my: 1, mx: 1.5 }}></Button>
           </Toolbar>
         </AppBar>
       </ThemeProvider>

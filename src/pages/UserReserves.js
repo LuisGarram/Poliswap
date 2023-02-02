@@ -36,7 +36,6 @@ const UserReserves = () => {
       .get();
     categoryCatalog.forEach((doc) => {
       catalogServiceList = doc.data().category;
-      // get: client, hoursReserves, id, total
     });
 
     const reserves = await firebase.firestore().collection("reserves").get();
@@ -44,20 +43,6 @@ const UserReserves = () => {
     const statusQuery = await firebase.firestore().collection("status").get();
 
     services.forEach(async (doc) => {
-      /*
-      {
-           x "category": 1, 
-           x  "image": "https://firebasestorage.googleapis.com/v0/b/poliswap.appspot.com/o/images%2Ficone-cercle-bleu.pngde6d0db9-9468-4b95-868e-602203499fed?alt=media&token=43105bce-d98f-474d-9a00-3689000986ed",
-           x "name": "saaa", 
-            x "email": "samuelpolino91@gmail.com", 
-            x "deliveryTerm": 7, 
-            x "details": "sss", 
-            "cost": 5
-        }
-      */
-
-      // Carga todos los servicios de personas registrados con sus metadatos
-      //if (user.email === doc.data().email) {
       registerList.push({
         serviceId: doc.id,
         categoryId: doc.data().category,
@@ -73,36 +58,18 @@ const UserReserves = () => {
     });
 
     reserves.forEach(async (reservesRow) => {
-
       registerList.forEach(async (registerRow) => {
-        if (reservesRow.data().client == user.email && reservesRow.data().id == registerRow.serviceId) {
+        if (
+          reservesRow.data().client == user.email &&
+          reservesRow.data().id == registerRow.serviceId
+        ) {
           let statusName = "";
           statusQuery.forEach(async (stat) => {
             if (stat.id == reservesRow.data().idStatus) {
               statusName = stat.data().name;
             }
-          })
-          /*
-          ReserverRow
-            {
-                "client": "dfhlokote@gmail.com",
-                "total": null,
-                "hoursReserved": null,
-                "id": "pK86Wm5cnCVIRyVR5KQ1"
-            }
-            */
-          /*
-          RegisterRow
-            {
-                "serviceId": "pK86Wm5cnCVIRyVR5KQ1",
-                "categoryId": 1,
-                "categoryName": "Bussines promotion",
-                "nameService": "saaa",
-                "deliveryTerm": 7,
-                "details": "sss"
-                date
-            }
-            */
+          });
+
           console.log(reservesRow.data());
           console.log("---");
           reservesList.push({
@@ -128,8 +95,6 @@ const UserReserves = () => {
     }
   }, [user.email]);
 
-  // Firebase Register
-
   return (
     <div className="div-img">
       <Box
@@ -147,111 +112,113 @@ const UserReserves = () => {
             {Loading == true ? <h1>Loading...</h1> : <></>}
             <Container sx={{ py: 8 }} maxWidth="md">
               <Grid container spacing={4}>
-                {
-                  textBoxes.length >= 1 ?
-                    textBoxes.map((textBox, index) => (
-                      <Grid item key={index} xs={12} sm={6} md={4}>
-                        <Card
-                          sx={{
-                            height: "100%",
-                            display: "flex",
-                            flexDirection: "column",
-                          }}
-                          className="border"
-                        >
-                          <br></br>
-                          <center>
-                            <Typography gutterBottom variant="h5" component="h2">
-                              {textBox.categoryName}
-                            </Typography>
-                            <div className="div-services">
-                              <img
-                                className={"img-services"}
-                                src={
-                                  textBox.image.length >= 1
-                                    ? textBox.image
-                                    : defaultImage
-                                }
-                              />
-                            </div>
-                          </center>
+                {textBoxes.length >= 1 ? (
+                  textBoxes.map((textBox, index) => (
+                    <Grid item key={index} xs={12} sm={6} md={4}>
+                      <Card
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                        className="border"
+                      >
+                        <br></br>
+                        <center>
+                          <Typography gutterBottom variant="h5" component="h2">
+                            {textBox.categoryName}
+                          </Typography>
+                          <div className="div-services">
+                            <img
+                              className={"img-services"}
+                              src={
+                                textBox.image.length >= 1
+                                  ? textBox.image
+                                  : defaultImage
+                              }
+                            />
+                          </div>
+                        </center>
 
-                          {connectedMetamask == true ? (
-                            <React.Fragment>
-                              <CardContent sx={{ flexGrow: 1 }}>
-                                <Typography
-                                  gutterBottom
-                                  variant="h5"
-                                  component="h2"
-                                >
-                                  Total: {textBox.total}
-                                </Typography>
-                                <Typography
-                                  gutterBottom
-                                  variant="h5"
-                                  component="h2"
-                                >
-                                  Status:{textBox.status}
-                                </Typography>
-                                <Typography
-                                  gutterBottom
-                                  variant="h5"
-                                  component="h2"
-                                >
-                                  Delivery term: {textBox.deliveryTerm} days.
-                                </Typography>
-                              </CardContent>
-                              <CardContent sx={{ flexGrow: 1 }}>
-                                <Typography
-                                  gutterBottom
-                                  variant="h5"
-                                  component="h2"
-                                >
-                                  Hiring date: {textBox.HiringDate}
-                                </Typography>
-                                <Typography
-                                  gutterBottom
-                                  variant="h5"
-                                  component="h2"
-                                >
-                                  Seller email: {textBox.email}
-                                </Typography>
+                        {connectedMetamask == true ? (
+                          <React.Fragment>
+                            <CardContent sx={{ flexGrow: 1 }}>
+                              <Typography
+                                gutterBottom
+                                variant="h5"
+                                component="h2"
+                              >
+                                Total: {textBox.total}
+                              </Typography>
+                              <Typography
+                                gutterBottom
+                                variant="h5"
+                                component="h2"
+                              >
+                                Status:{textBox.status}
+                              </Typography>
+                              <Typography
+                                gutterBottom
+                                variant="h5"
+                                component="h2"
+                              >
+                                Delivery term: {textBox.deliveryTerm} days.
+                              </Typography>
+                            </CardContent>
+                            <CardContent sx={{ flexGrow: 1 }}>
+                              <Typography
+                                gutterBottom
+                                variant="h5"
+                                component="h2"
+                              >
+                                Hiring date: {textBox.HiringDate}
+                              </Typography>
+                              <Typography
+                                gutterBottom
+                                variant="h5"
+                                component="h2"
+                              >
+                                Seller email: {textBox.email}
+                              </Typography>
 
-                                <br></br>
-                                <br></br>
-                              </CardContent>
+                              <br></br>
+                              <br></br>
+                            </CardContent>
 
-                              <center>
-                                <CardActions sx={{ justifyContent: "center" }}>
-                                  <Button
-                                    id={index}
-                                    variant="contained"
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "center",
-                                    }}
-                                    color="success"
-                                    className="button"
-                                  >
-                                    Report
-                                  </Button>
-                                </CardActions>
-                              </center>
-                            </React.Fragment>
-                          ) : (
-                            <></>
-                          )}
-                        </Card>
-                      </Grid>
-                    ))
-                    : Loading == true ? <></> : <h1>Not reserves.</h1>
-                }
+                            <center>
+                              <CardActions sx={{ justifyContent: "center" }}>
+                                <Button
+                                  id={index}
+                                  variant="contained"
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                  }}
+                                  color="success"
+                                  className="button"
+                                >
+                                  Report
+                                </Button>
+                              </CardActions>
+                            </center>
+                          </React.Fragment>
+                        ) : (
+                          <></>
+                        )}
+                      </Card>
+                    </Grid>
+                  ))
+                ) : Loading == true ? (
+                  <></>
+                ) : (
+                  <h1>Not reserves.</h1>
+                )}
               </Grid>
             </Container>
           </React.Fragment>
         </div>
       </Box>
-      {Loading = true}
+      {(Loading = true)}
     </div>
   );
 };

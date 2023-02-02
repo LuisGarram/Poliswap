@@ -37,6 +37,7 @@ const Freelancer = () => {
 
     const reserves = await firebase.firestore().collection("reserves").get();
     const services = await firebase.firestore().collection("register").get();
+    const statusQuery = await firebase.firestore().collection("status").get();
 
     services.forEach(async (doc) => {
       if (user.email === doc.data().email) {
@@ -53,6 +54,13 @@ const Freelancer = () => {
     });
 
     reserves.forEach(async (reservesRow) => {
+      let statusName = "";
+      statusQuery.forEach(async (stat) => {
+        if (stat.id == reservesRow.data().idStatus) {
+          statusName = stat.data().name;
+        }
+      });
+
       registerList.forEach(async (registerRow) => {
         if (reservesRow.data().id == registerRow.serviceId) {
           console.log(reservesRow.data());
@@ -63,7 +71,9 @@ const Freelancer = () => {
             total: reservesRow.data().total,
             deliveryTerm: registerRow.deliveryTerm,
             client: reservesRow.data().client,
+            status: statusName,
             image: registerRow.image,
+            HiringDate: reservesRow.data().HiringDate,
           });
         }
       });
@@ -94,7 +104,7 @@ const Freelancer = () => {
             {Loading == true ? <h1>Loading...</h1> : <></>}
             <Container sx={{ py: 8 }} maxWidth="md">
               <Grid container spacing={4}>
-                {textBoxes.length >= 1 ?
+                {textBoxes.length >= 1 ? (
                   textBoxes.map((textBox, index) => (
                     <Grid item key={index} xs={12} sm={6} md={4}>
                       <Card
@@ -137,7 +147,7 @@ const Freelancer = () => {
                                 variant="h5"
                                 component="h2"
                               >
-                                Status:{" "}
+                                Status:{textBox.status}
                               </Typography>
                               <Typography
                                 gutterBottom
@@ -153,7 +163,7 @@ const Freelancer = () => {
                                 variant="h5"
                                 component="h2"
                               >
-                                Hiring date: {/*textBox.name*/}
+                                Hiring date: {textBox.HiringDate}
                               </Typography>
                               <Typography
                                 gutterBottom
@@ -190,14 +200,17 @@ const Freelancer = () => {
                       </Card>
                     </Grid>
                   ))
-                  : Loading==true? <></> : <h1>Not reserves.</h1>
-                }
+                ) : Loading == true ? (
+                  <></>
+                ) : (
+                  <h1>Not reserves.</h1>
+                )}
               </Grid>
             </Container>
           </React.Fragment>
         </div>
       </Box>
-      {Loading = true}
+      {(Loading = true)}
     </div>
   );
 };
