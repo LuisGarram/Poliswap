@@ -101,7 +101,7 @@ const Navbar = () => {
             >
               <img className="image" src={Polis} style={{ width: 150 }} />
             </Typography>
-            <nav>
+
               <Button
                 variant="outlined"
                 onClick={HomeUser}
@@ -136,7 +136,7 @@ const Navbar = () => {
                 <MenuItem onClick={clientReservations}>Clients</MenuItem>
               </Menu>
 
-              <Button>
+             
                 {user?.displayName ? (
                   <Button variant="outlined" onClick={handleSignOut}>
                     Logout
@@ -148,8 +148,8 @@ const Navbar = () => {
                     </Button>
                   </React.Fragment>
                 )}
-              </Button>
-            </nav>
+          
+
             <Button variant="outlined" sx={{ my: 1, mx: 1.5 }}></Button>
           </Toolbar>
         </AppBar>
