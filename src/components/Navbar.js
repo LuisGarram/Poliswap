@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
 
 import { UserAuth } from "../context/AuthContext";
 import AppBar from "@mui/material/AppBar";
 
 import Button from "@mui/material/Button";
-
+import Link from '@mui/material/Link';
 import CssBaseline from "@mui/material/CssBaseline";
 
 import Toolbar from "@mui/material/Toolbar";
@@ -13,17 +13,43 @@ import Typography from "@mui/material/Typography";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-
 import { ethers } from "ethers";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import Polis from "./Poli.png";
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  usePrepareContractWrite,
+  useNetwork, useSwitchNetwork
+} from 'wagmi'
+const Navbar = (props) => {
+ const { address, connector, isConnected } = useAccount()
+  const { connect, connectors, error, isLoading, pendingConnector } =useConnect()
+  const { disconnect } = useDisconnect()
+  const { chain } = useNetwork()
 
-const Navbar = () => {
+  const [check, setCheck] = useState(false);
+  // Create a stateful variable to store the network next to all the others
+  const [network, setNetwork] = useState('');
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
+  
   const { user, logOut } = UserAuth();
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+    const [defaultAccount, setDefaultAccount] = useState(null);
+  useEffect(() => {
+
+  }, [defaultAccount]);
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+
   const handleSignOut = async () => {
     try {
       await logOut();
@@ -93,7 +119,7 @@ const Navbar = () => {
           sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}
         >
           <Toolbar sx={{ flexWrap: "wrap" }}>
-            <Typography
+          <Typography
               variant="h6"
               color="inherit"
               noWrap
@@ -102,6 +128,42 @@ const Navbar = () => {
               <img className="image" src={Polis} style={{ width: 150 }} />
             </Typography>
 
+            {chain && props.chains.find(networkValue => chain.id === networkValue.id) && props.isConnected?
+            
+            <React.Fragment>      
+                                      <Link
+              variant="button"
+              color="secondary" 
+              onClick={() => {
+                if (chain) {
+                  if (props.chains.find(networkValue => chain.id === networkValue.id)) {
+                    let explorer = props.chains.find(networkValue => chain.id === networkValue.id).blockExplorers.default.url.replace("type", "address").replace("valuex", address);
+                    window.open(explorer,'_blank');
+                  }
+                }
+				
+                  
+              }}
+              sx={{ my: 1, mx: 1.5 }}
+            >
+              {address}
+            </Link>
+              <Link
+              variant="button"
+              color="secondary"
+
+              sx={{ my: 1, mx: 1.5 }}
+            >
+              {
+                  props.chains.some(networkValue => {
+                    props.chains.find(chainx => chain.id === networkValue.id)
+                  }
+                    )
+                  
+
+              }
+            {chain ? props.chains.find(networkValue => chain.id === networkValue.id) ? "Connected to:" + chain.network : "Network not supported" : "Chain is undefined"}       
+            </Link>
               <Button
                 variant="outlined"
                 onClick={HomeUser}
@@ -109,8 +171,20 @@ const Navbar = () => {
               >
                 Buy
               </Button>
-
-              <Button variant="outlined" onClick={PromoteYourServices}>
+                         
+              {user?.displayName ? (
+                  <Button variant="outlined" onClick={handleSignOut}>
+                    Logout
+                  </Button>
+                ) : (
+                  <React.Fragment>
+                    <Button variant="outlined" onClick={redirect}>
+                      Sign In
+                    </Button>
+                  </React.Fragment>
+                )}
+          
+            <Button variant="outlined" onClick={PromoteYourServices}>
                 Promote your services
               </Button>
               <Button
@@ -135,22 +209,29 @@ const Navbar = () => {
                 <MenuItem onClick={myReservations}>My reservations</MenuItem>
                 <MenuItem onClick={clientReservations}>Clients</MenuItem>
               </Menu>
+              <Button onClick={disconnect} variant="outlined" sx={{ my: 1, mx: 1.5 }}>
+              Disconnect
+            </Button>
+              </React.Fragment> : 
 
-             
-                {user?.displayName ? (
-                  <Button variant="outlined" onClick={handleSignOut}>
-                    Logout
-                  </Button>
-                ) : (
-                  <React.Fragment>
-                    <Button variant="outlined" onClick={redirect}>
-                      Sign In
-                    </Button>
-                  </React.Fragment>
-                )}
-          
-
-            <Button variant="outlined" sx={{ my: 1, mx: 1.5 }}></Button>
+              <React.Fragment>        
+              <React.Fragment>
+      {connectors.map((connector) => (
+             <Button
+              disabled={!connector.ready}
+              key={connector.id}
+              variant="outlined"
+              onClick={() => connect({ connector })}
+            >
+              Connect: {connector.name}
+              {!connector.ready && ' (unsupported)'}
+              {isLoading &&
+                connector.id === pendingConnector?.id &&
+                ' (connecting)'}
+            </Button>
+          ))}
+            </React.Fragment>
+              </React.Fragment>}
           </Toolbar>
         </AppBar>
       </ThemeProvider>
