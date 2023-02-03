@@ -20,12 +20,13 @@ import { NFTStorage } from "nft.storage/dist/bundle.esm.min.js";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import { v4 } from "uuid";
+import { Label } from "@mui/icons-material";
 
 const PromoteYourServices = () => {
   const client = new NFTStorage({
     token: process.env.REACT_APP_NFTSTORAGE_TOKEN,
   });
-  
+
 
 
   const { logOut, user } = UserAuth();
@@ -35,7 +36,6 @@ const PromoteYourServices = () => {
   const [cost, setCost] = useState("");
   const [details, setDetails] = useState("");
   const [address, setAddress] = useState("");
-  const [email, setEmail] = useState("");
   const [image, setImage] = useState("");
   const [date, setDate] = useState("");
   const [listData, setListData] = useState([]);
@@ -47,8 +47,10 @@ const PromoteYourServices = () => {
     e.preventDefault();
     if (imageUpload == null) {
       setImageUpload([]);
+      alert("Please upload a valid service image.");
     } else {
       const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+
       const metadata = await client.store({
         name: name,
         category: fieldSubCategory,
@@ -60,44 +62,48 @@ const PromoteYourServices = () => {
         deliveryTerm: parseInt(date),
         image: imageUpload,
       })
-        await fetch(
-          metadata.url.replace("ipfs://", "https://nftstorage.link/ipfs/")
-        )
-          .then((res) => res.json())
-          .then((out) => {
-            let imageDentro = out.image.replace(
-              "ipfs://",
-              "https://nftstorage.link/ipfs/"
-            );
-            const data = {
-              name: name,
-              category: parseInt(fieldSubCategory),
-              cost: parseInt(cost),
-              details: details,
-              email: user.email,
-              deliveryTerm: parseInt(date),
-              image: imageDentro,
-            };
-            const db = firebase.firestore();
-            db.collection("register")
-              .add(data)
-              .then(function (docRef) {
-                setName("");
-                setFieldSubCategory("");
-                setCost("");
-                setDetails("");
-                setEmail("");
-                setImage("");
-                setDate("");
-                setImageUpload([]);
-              })
-              .catch(function (error) {
-                console.error("Error adding document: ", error);
-              });
-          })
-          .catch((err) => console.error(err));
+      await fetch(
+        metadata.url.replace("ipfs://", "https://nftstorage.link/ipfs/")
+      )
+        .then((res) => res.json())
+        .then((out) => {
+          let imageIn = out.image.replace(
+            "ipfs://",
+            "https://nftstorage.link/ipfs/"
+          );
+          const data = {
+            name: name,
+            category: parseInt(fieldSubCategory),
+            cost: parseInt(cost),
+            details: details,
+            address: address,
+            email: user.email,
+            deliveryTerm: parseInt(date),
+            image: imageIn,
+          };
+          const db = firebase.firestore();
+          db.collection("register")
+            .add(data)
+            .then(function (docRef) {
+              setName("");
+              setFieldSubCategory("");
+              setCost("");
+              setDetails("");
+              setAddress("");
+              setImage("");
+              setDate("");
+              setImageUpload([]);
+              alert("Done :)");
+            })
+            .catch(function (error) {
+              console.error("Error adding document: ", error);
+
+            });
+        })
+        .catch(function (err) {
+          console.error(err);
+        });
     }
-    alert("Done :)");
   };
 
   const datax = async () => {
@@ -197,7 +203,7 @@ const PromoteYourServices = () => {
             id="Service details"
             onChange={(e) => setDetails(e.target.value)}
           />
-           <TextField
+          <TextField
             margin="normal"
             fullWidth
             name="Address"
@@ -213,7 +219,6 @@ const PromoteYourServices = () => {
             id="email"
             name="email"
             value={user.email}
-            onChange={(e) => setEmail(e.target.value)}
           />
           <br></br>
           <br></br>
@@ -233,6 +238,7 @@ const PromoteYourServices = () => {
             Upload
             <input
               onChange={(event) => {
+                console.log(event.target.files[0]);
                 setImageUpload(event.target.files[0]);
               }}
               hidden
@@ -240,6 +246,11 @@ const PromoteYourServices = () => {
               type="file"
             />
           </Button>
+          <br></br>
+          <br></br>
+          {imageUpload!=null?
+          <InputLabel>{imageUpload.name}</InputLabel> : <></>
+          }
 
           <Button
             fullWidth

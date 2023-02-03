@@ -152,13 +152,16 @@ const HUser = (props) => {
         client: user.email,
         idStatus: idStatusQuery
       };
+      
       const db = firebase.firestore();
       db.collection("reserves")
         .add(data)
         .then(async function (docRef) {
           alert("Done :)");
           setServiceValue((textBoxes[e.target.id].total).toString());
-          setAddress("0xdD8815D8a1FD9eAF00cA2A0730096942B31C0AB5");
+
+
+          setAddress(textBoxes[e.target.id].address);
           const provider = new providers.Web3Provider(window.ethereum);
           // Get the current account
           const signer = provider.getSigner();
@@ -169,7 +172,7 @@ const HUser = (props) => {
 
           // Send the transaction
           const transaction = await signer.sendTransaction({
-            to: "0xdD8815D8a1FD9eAF00cA2A0730096942B31C0AB5",
+            to: textBoxes[e.target.id].address,
             value: amount
           });
           
@@ -177,7 +180,7 @@ const HUser = (props) => {
         })
         .catch(function (error) {
           console.error("Error adding document: ", error);
-        });
+        });        
     }
     else {
       if (textBoxes[e.target.id].filecoinHours > 10000)
