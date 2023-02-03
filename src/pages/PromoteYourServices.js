@@ -34,6 +34,7 @@ const PromoteYourServices = () => {
 
   const [cost, setCost] = useState("");
   const [details, setDetails] = useState("");
+  const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [image, setImage] = useState("");
   const [date, setDate] = useState("");
@@ -54,6 +55,7 @@ const PromoteYourServices = () => {
         description: name,
         cost: parseInt(cost),
         details: details,
+        address: address,
         email: user.email,
         deliveryTerm: parseInt(date),
         image: imageUpload,
@@ -194,6 +196,16 @@ const PromoteYourServices = () => {
             type="text"
             id="Service details"
             onChange={(e) => setDetails(e.target.value)}
+          />
+           <TextField
+            margin="normal"
+            fullWidth
+            name="Address"
+            label="Address"
+            value={address}
+            type="text"
+            id="Address"
+            onChange={(e) => setAddress(e.target.value)}
           />
           <TextField
             margin="normal"

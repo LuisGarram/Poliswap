@@ -184,7 +184,7 @@ const Navbar = (props) => {
                   </React.Fragment>
                 )}
           
-            <Button variant="outlined" onClick={PromoteYourServices}>
+            <Button variant="outlined" onClick={PromoteYourServices} sx={{ my: 1, mx: 1.5 }}>
                 Promote your services
               </Button>
               <Button

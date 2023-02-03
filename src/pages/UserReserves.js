@@ -114,7 +114,7 @@ const UserReserves = () => {
               <Grid container spacing={4}>
                 {textBoxes.length >= 1 ? (
                   textBoxes.map((textBox, index) => (
-                    <Grid item key={index} xs={12} sm={6} md={4}>
+                    <Grid item key={index} >
                       <Card
                         sx={{
                           height: "100%",
