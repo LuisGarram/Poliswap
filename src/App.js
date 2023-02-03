@@ -47,10 +47,38 @@ function App(props) {
               </Protected>
             }
           />
-          <Route path="/Huser" element={<HUser />} />
-          <Route path="/PurchasedServices" element={<BuyUser />} />
-          <Route path="/clientReservations" element={<Freelancer />} />
-          <Route path="/myReservations" element={<UserReserves />} />
+          <Route
+            path="/Huser"
+            element={
+              <Protected>
+                <HUser chains={props.chains} />
+              </Protected>
+            }
+          />
+          <Route
+            path="/PurchasedServices"
+            element={
+              <Protected>
+                <BuyUser />
+              </Protected>
+            }
+          />
+          <Route
+            path="/clientReservations"
+            element={
+              <Protected>
+                <Freelancer />
+              </Protected>
+            }
+          />
+          <Route
+            path="/myReservations"
+            element={
+              <Protected>
+                <UserReserves />
+              </Protected>
+            }
+          />
         </Routes>
       </AuthContextProvider>
     </div>

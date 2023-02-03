@@ -16,12 +16,18 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import "firebase/compat/auth";
 import InputAdornment from "@mui/material/InputAdornment";
-
+import { NFTStorage } from "nft.storage/dist/bundle.esm.min.js";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import { v4 } from "uuid";
 
 const PromoteYourServices = () => {
+  const client = new NFTStorage({
+    token: process.env.REACT_APP_NFTSTORAGE_TOKEN,
+  });
+  
+
+
   const { logOut, user } = UserAuth();
 
   const [name, setName] = useState("");
@@ -36,41 +42,58 @@ const PromoteYourServices = () => {
 
   const [imageUpload, setImageUpload] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (imageUpload == null) {
       setImageUpload([]);
     } else {
       const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
-      uploadBytes(imageRef, imageUpload).then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((url) => {
-          const data = {
-            name: name,
-            category: fieldSubCategory,
-            cost: parseInt(cost),
-            details: details,
-            email: user.email,
-            deliveryTerm: parseInt(date),
-            image: url,
-          };
-          const db = firebase.firestore();
-          db.collection("register")
-            .add(data)
-            .then(function (docRef) {
-              setName("");
-              setFieldSubCategory("");
-              setCost("");
-              setDetails("");
-              setEmail("");
-              setImage("");
-              setDate("");
-              setImageUpload([]);
-            })
-            .catch(function (error) {
-              console.error("Error adding document: ", error);
-            });
-        });
-      });
+      const metadata = await client.store({
+        name: name,
+        category: fieldSubCategory,
+        description: name,
+        cost: parseInt(cost),
+        details: details,
+        email: user.email,
+        deliveryTerm: parseInt(date),
+        image: imageUpload,
+      })
+        await fetch(
+          metadata.url.replace("ipfs://", "https://nftstorage.link/ipfs/")
+        )
+          .then((res) => res.json())
+          .then((out) => {
+            let imageDentro = out.image.replace(
+              "ipfs://",
+              "https://nftstorage.link/ipfs/"
+            );
+            const data = {
+              name: name,
+              category: parseInt(fieldSubCategory),
+              cost: parseInt(cost),
+              details: details,
+              email: user.email,
+              deliveryTerm: parseInt(date),
+              image: imageDentro,
+            };
+            const db = firebase.firestore();
+            db.collection("register")
+              .add(data)
+              .then(function (docRef) {
+                setName("");
+                setFieldSubCategory("");
+                setCost("");
+                setDetails("");
+                setEmail("");
+                setImage("");
+                setDate("");
+                setImageUpload([]);
+              })
+              .catch(function (error) {
+                console.error("Error adding document: ", error);
+              });
+          })
+          .catch((err) => console.error(err));
     }
     alert("Done :)");
   };

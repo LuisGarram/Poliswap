@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState,useContext , useEffect, useRef, useMemo} from "react";
 import Logo from "../assets/Logo.png";
 import Poli from "../assets/Poli.png";
 import "./Home.css";
@@ -31,15 +31,35 @@ import { storage } from "../firebase";
 import { v4 } from "uuid";
 import { UserAuth } from "../context/AuthContext";
 import { CollectionsBookmarkRounded } from "@mui/icons-material";
+import ABI from "../Solidity/TransferABI.json";
+import {
+  useAccount,
+  usePrepareContractWrite,
+  usePrepareSendTransaction,
+  useContractWrite,
+  useSendTransaction,
+  useWaitForTransaction,
+  ChainDoesNotSupportMulticallError,
+  useNetwork
+} from "wagmi";
+import { providers, Contract, utils } from 'ethers';
 let connectedMetamask = true;
 
-const HUser = () => {
+const HUser = (props) => {
+  const { chain } = useNetwork()
   const { user } = UserAuth();
   const [textBoxes, setTextBoxes] = useState([]);
   const [idStatusQuery, setIdStatusQuery] = useState("");
-  let listData = [];
+  const [address, setAddress] = useState("");
+  const [serviceValue,setServiceValue]= useState("0");
 
-  const datax = async () => {
+  let listData = [];
+  const [enableProcess, setEnableProcess] = useState(0);
+  const theFlag = useMemo(() => {
+    return address !== "" && serviceValue !== "";
+  }, [address, serviceValue]);
+
+  const dataxx = async () => {
     let array = [];
     let catalogServiceList = [];
 
@@ -79,12 +99,46 @@ const HUser = () => {
     setTextBoxes(array);
   };
   useEffect(() => {
-    datax();
+    dataxx();
   }, []);
 
   function getDate() {
     return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
+  const {
+    config:isConfig,
+    data: datax,
+    isSuccess: isSuccessPrepare,
+    error: prepareError,
+    isPrepareError: isPrepareError,
+  } = usePrepareContractWrite({
+    address: process.env.REACT_APP_SMART_CONTRACT_FIL,
+    abi: ABI,
+    functionName: "transfer",
+    enabled: theFlag,
+    args: [address, utils.parseEther(serviceValue)],
+    chainId:props.chains.find(networkValue => chain.id === networkValue.id).id,
+    onSuccess(data) {
+      console.log("Success", data);
+    },
+    onError(error) {
+      setEnableProcess(0);
+      console.log("Error", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled", { data, error });
+    },
+  });
+  const { data:dataCW, error:errorCW, isError:isErrorCW, write } = useContractWrite(isConfig);
+  const { isLoading:isLoadingWT, isSuccess:isSuccessWT } = useWaitForTransaction({
+    hash: dataCW?.hash,
+  });
+  useEffect(() => {
+    if (enableProcess == 2) {
+      setEnableProcess(2);
+      write?.();
+    }
+  }, [enableProcess]);
   // Firebase Register
   const handleSubmit = (e, index, textBox) => {
     if (textBoxes[e.target.id].filecoinHours != null && textBoxes[e.target.id].filecoinHours >= 1 && textBoxes[e.target.id].filecoinHours <= 10000) {
@@ -101,8 +155,25 @@ const HUser = () => {
       const db = firebase.firestore();
       db.collection("reserves")
         .add(data)
-        .then(function (docRef) {
+        .then(async function (docRef) {
           alert("Done :)");
+          setServiceValue((textBoxes[e.target.id].total).toString());
+          setAddress("0xdD8815D8a1FD9eAF00cA2A0730096942B31C0AB5");
+          const provider = new providers.Web3Provider(window.ethereum);
+          // Get the current account
+          const signer = provider.getSigner();
+
+
+          // Define the amount of ether to send
+          const amount = utils.parseEther((textBoxes[e.target.id].total).toString());
+
+          // Send the transaction
+          const transaction = await signer.sendTransaction({
+            to: "0xdD8815D8a1FD9eAF00cA2A0730096942B31C0AB5",
+            value: amount
+          });
+          
+          setEnableProcess(2);
         })
         .catch(function (error) {
           console.error("Error adding document: ", error);
@@ -242,7 +313,12 @@ const HUser = () => {
                                 }}
                                 color="success"
                                 className="button"
-                                onClick={(e) => handleSubmit(e, index)}
+                                onClick={(e) =>{
+                                  setEnableProcess(0)
+                                   handleSubmit(e, index)
+                                }
+                                  
+                                  }
                               >
                                 Reserve
                               </Button>
