@@ -62,6 +62,7 @@ const PromoteYourServices = () => {
         deliveryTerm: parseInt(date),
         image: imageUpload,
       })
+
       await fetch(
         metadata.url.replace("ipfs://", "https://nftstorage.link/ipfs/")
       )
@@ -80,6 +81,7 @@ const PromoteYourServices = () => {
             email: user.email,
             deliveryTerm: parseInt(date),
             image: imageIn,
+            ipfsURL: metadata.url.replace("ipfs://", "https://nftstorage.link/ipfs/")
           };
           const db = firebase.firestore();
           db.collection("register")
@@ -238,7 +240,6 @@ const PromoteYourServices = () => {
             Upload
             <input
               onChange={(event) => {
-                console.log(event.target.files[0]);
                 setImageUpload(event.target.files[0]);
               }}
               hidden

@@ -87,16 +87,32 @@ const HUser = (props) => {
       .firestore()
       .collection("register")
       .get();
-    dataFirestore.forEach((doc) => {
-      array.push({
-        ...doc.data(),
-        categoryName: catalogServiceList[doc.data().category].name,
-        id: doc.id,
-      });
+    dataFirestore.forEach(async (doc) => {
+      await fetch(
+        doc.data().ipfsURL
+      )
+        .then((res) => res.json())
+        .then((out) => {
+          array.push({
+            image:out.image.replace(
+              "ipfs://",
+              "https://nftstorage.link/ipfs/"
+            ),
+            categoryName: catalogServiceList[out.category].name,
+            deliveryTerm:out.deliveryTerm,
+            address:out.address,
+            cost: out.cost,
+            name:out.name,
+            details:out.details,
+            email:out.email,
+            id: doc.id,
+          });
+        });
       // get:  name, details, cost, email, date, category, image
+      setTextBoxes(array);
     });
+    console.log(array);
 
-    setTextBoxes(array);
   };
   useEffect(() => {
     dataxx();
